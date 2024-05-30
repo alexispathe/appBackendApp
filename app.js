@@ -1,14 +1,8 @@
 // Importamos express
 const express = require('express');
 const app = express();
-//Trabajando con los sockets
-const http = require('http');
-const server = http.createServer(app);
-const setupSocket = require('./config/socket');
+const path = require('path')
 
-const io = setupSocket(server);
-
-  
 // Trabajar con variables de entorno 
 require('dotenv').config()
 const db = require('./config/db')
@@ -22,6 +16,23 @@ const personajeRoutes = require('./routes/personajeRoutes');
 const mensajesRoutes = require('./routes/mensajeRoutes')
 app.use('/api', personajeRoutes);
 app.use('/api',mensajesRoutes)
+
+
+//Trabajando con los sockets
+const http = require('http');
+const server = http.createServer(app);
+const setupSocket = require('./config/socket');
+
+const io = setupSocket(server);
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
+  });
+io.on('connection', (socket) => {
+    socket.connected ? console.log("Usuario conectado") : console.log("Usuario desconectado")
+  });
+
+  
+
 server.listen(process.env.PORT,()=>{
-    console.log(`Servidor conectado correctamente en el puerto ${process.env.PORT }` )
+    console.log(`Servidor conectado correctamente en el puerto ${process.env.PORT } en sockets` )
 })

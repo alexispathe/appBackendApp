@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat en tiempo real</title>
+  </head>
+  <body>
+    <div id="chat-messages"></div>
+    <input type="text" id="sender" placeholder="sender" />
+    <input type="text" id="message" placeholder="message" />
+    <button onclick="enviarMensaje()">Enviar</button>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io.connect();
+
+      socket.on("message", (data) => {
+        const { sender, message } = data;
+        console.log(data);
+        const messageElement = document.createElement("p");
+        messageElement.textContent = `${sender}: ${message}`;
+        document.getElementById("chat-messages").appendChild(messageElement);
+      });
+
+      function enviarMensaje() {
+        const sender = document.getElementById("sender").value;
+        const message = document.getElementById("message").value;
+
+        socket.emit("sendMessage", { sender, message });
+        fetch("http://localhost:4000/api/mensajes", {
+          method: "POST",
+          body: JSON.stringify({sender,message}),
+          mode: "cors",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }).then(data=>{
+        }).catch(err=> console.log("Ocurrio un error"));
+        document.getElementById("message").value = ""; // Limpiar campo de mensaje
+      }
+    </script>
+  </body>
+</html>

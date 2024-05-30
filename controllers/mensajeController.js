@@ -1,16 +1,13 @@
 const db = require('../config/db');
 
 const guardarMensajes = (req, res, io) => { // Acepta el objeto io como parámetro adicional
-  const { remitente, contenido } = req.body;
-  const query = 'INSERT INTO mensajes (remitente, contenido) VALUES (?, ?)';
-  db.query(query, [remitente, contenido], (error, result) => {
+  const { sender, message } = req.body;
+  const query = 'INSERT INTO chat_messages (sender, message) VALUES (?, ?)';
+  db.query(query, [sender, message], (error, result) => {
     if (error) {
       console.error('Error al crear el mensaje:', error);
       res.status(500).json({ error: 'Error al crear el mensaje' });
     } else {
-      // Emitir el mensaje a través de io.emit
-      io.emit('message', { remitente, contenido });
-
       res.status(201).json({ message: 'Mensaje creado exitosamente' });
     }
   });

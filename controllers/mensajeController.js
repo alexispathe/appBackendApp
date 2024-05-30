@@ -14,7 +14,7 @@ const guardarMensajes = (req, res, io) => { // Acepta el objeto io como parámet
 };
 
 const getMensajes = (req, res) => {
-  const query = 'SELECT * FROM mensajes ORDER BY fecha DESC';
+  const query = 'SELECT * FROM chat_messages ORDER BY date DESC';
   db.query(query, (error, results) => {
     if (error) {
       console.error('Error al obtener los mensajes:', error);

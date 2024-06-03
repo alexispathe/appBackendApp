@@ -24,9 +24,11 @@ const server = http.createServer(app);
 const setupSocket = require('./config/socket');
 
 const io = setupSocket(server);
+
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
   });
+app.use(express.static(path.join(__dirname, 'public')));
 io.on('connection', (socket) => {
     socket.connected ? console.log("Usuario conectado") : console.log("Usuario desconectado")
   });

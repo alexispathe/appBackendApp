@@ -5,24 +5,88 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chat en tiempo real</title>
   </head>
+ <style>
+  .chat-messages-container{
+    width: 300px;
+    height: 400px;
+    position: absolute;
+    bottom: 0;
+    right: 50px;
+    border: 1px solid rgba(21, 19, 19, 0.074);
+    border-radius: 10px;
+    padding: 10px 5px;
+
+  }
+  .chat-messages-header{
+    /* display: flex; */
+    /* flex-wrap: wrap; */
+  }
+  .sender{
+    border: none;
+    outline: none;
+    width: 100%;
+  }
+  .chat-messages{
+    width: calc(100% -40px);
+    height: 340px;
+    overflow: auto;
+
+  }
+  .form-chat-messages{
+    display: flex;
+    justify-content: space-between;
+
+  }
+  
+  .message{
+    width: 100%;
+    border: 0px;
+    outline: none;
+  }
+  .btn-submit{
+    border: none;
+    background-color: rgb(0, 153, 255);
+    cursor: pointer;
+    color: white;
+  }
+  .btn-submit:hover{
+    transition-duration: 0.5s;
+    background-color: rgb(0, 106, 255);
+  }
+
+ </style>
   <body>
-    <div id="chat-messages"></div>
-    <input type="text" id="sender" placeholder="sender" />
-    <input type="text" id="message" placeholder="message" />
-    <button onclick="enviarMensaje()">Enviar</button>
+    <div class="chat-messages-container">
+      <div class="chat-messages-header">
+        <!-- <p>Chat - </p>  -->
+        <input type="text" class="sender" id="sender" placeholder="Escribe tu Nombre" />
+
+      </div>
+      <div class="chat-messages"></div>
+      <div class="form-chat-messages">
+        <textarea type="text" class="message" id="message" placeholder="Mensaje"></textarea>
+        <button onclick="enviarMensaje()" class="btn-submit">Enviar</button>
+      </div>
+      
+    </div>
+   
 
     <script src="/socket.io/socket.io.js"></script>
     <script>
       const socket = io.connect();
-
-      socket.on("message", (data) => {
-        const { sender, message } = data;
-        console.log(data);
-        const messageElement = document.createElement("p");
-        messageElement.textContent = `${sender}: ${message}`;
-        document.getElementById("chat-messages").appendChild(messageElement);
-      });
-
+      const getMessages = () => {
+        fetch("http://localhost:4000/api/mensajes", { method: "GET" })
+          .then((res) => res.json())
+          .then((data) => {
+            data.forEach((element) => {
+              const messageElement = document.createElement("p");
+              messageElement.textContent = `${element.sender}: ${element.message}`;
+              document
+                .querySelector(".chat-messages")
+                .appendChild(messageElement);
+            });
+          });
+      };
       function enviarMensaje() {
         const sender = document.getElementById("sender").value;
         const message = document.getElementById("message").value;
@@ -30,15 +94,20 @@
         socket.emit("sendMessage", { sender, message });
         fetch("http://localhost:4000/api/mensajes", {
           method: "POST",
-          body: JSON.stringify({sender,message}),
+          body: JSON.stringify({ sender, message }),
           mode: "cors",
           headers: {
             "Content-Type": "application/json",
           },
-        }).then(data=>{
-        }).catch(err=> console.log("Ocurrio un error"));
-        document.getElementById("message").value = ""; // Limpiar campo de mensaje
+        })
+          .then((data) => {})
+          .catch((err) => console.log("Ocurrio un error"));
+        document.querySelector(".message").value = ""; // Limpiar campo de mensaje
+        const messageElement = document.createElement("p");
+              messageElement.textContent = `${sender}: ${message}`;
+        document.querySelector('.chat-messages').appendChild(messageElement)
       }
+      getMessages();
     </script>
   </body>
 </html>
